@@ -1,11 +1,11 @@
 from discord.ext.commands import Bot
 from creds import TOKEN
-from cogs.turn_taker import TurnTrackerCog
+from cogs.descended import DescendedFromTheQueen
 
 COMMAND_PREFIX = '+'
 
 bot = Bot(command_prefix=COMMAND_PREFIX)
-bot.add_cog(TurnTrackerCog(bot))
+bot.add_cog(DescendedFromTheQueen(bot))
 
 
 @bot.event
