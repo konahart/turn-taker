@@ -3,10 +3,6 @@ from discord.ext import commands
 from orderedset import OrderedSet
 from typing import Iterable
 
-from creds import TOKEN
-
-COMMAND_PREFIX = '+'
-
 
 class TurnTracker(object):
 
@@ -154,20 +150,3 @@ class TurnTrackerCog(commands.Cog):
     async def reset(self, context: commands.Context):
         self._game.reset()
         await context.send("Game reset")
-
-
-bot = commands.Bot(command_prefix=COMMAND_PREFIX)
-bot.add_cog(TurnTrackerCog(bot))
-
-
-@bot.event
-async def on_ready():
-    print('Logged in as {}#{}!'.format(bot.user.name, bot.user.discriminator))
-
-
-def main():
-    bot.run(TOKEN)
-
-
-if __name__ == "__main__":
-    main()
