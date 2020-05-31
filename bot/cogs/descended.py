@@ -7,6 +7,7 @@ class DescendedFromTheQueen(TurnTrackerCog):
     def __init__(self, bot):
         super().__init__(bot)
         self.current_prompt = 0
+        self.last_message = None
 
     def get_prompt(self):
         c = self.current_prompt
@@ -19,10 +20,11 @@ class DescendedFromTheQueen(TurnTrackerCog):
         await context.send(msg)
         await self.done(context)
 
-    @commands.command(aliases=["next", "skip", "prompt"],
+    @commands.command(aliases=["x", "x-card", ],
                       help='signal that you are done with your turn')
-    async def done(self, context: commands.Context):
+    async def xcard(self, context: commands.Context):
         self._game.advance_turn()
         current_player = self._game.get_current_player()
         msg = '{}: {}'.format(self.get_prompt(), current_player.mention)
         await context.send(msg)
+        await self.last_message.delete()
