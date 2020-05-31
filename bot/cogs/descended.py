@@ -28,6 +28,14 @@ class DescendedFromTheQueen(TurnTrackerCog):
         msg = '{}: {}'.format(self.get_prompt(), current_player.mention)
         await context.send(msg)
 
+    @commands.command(aliases=["pass"],
+                      help='pass your prompt to the next player')
+    async def skip(self, context: commands.Context):
+        self._game.advance_turn()
+        current_player = self._game.get_current_player()
+        msg = '{}: {}'.format(self.get_prompt(), current_player.mention)
+        await context.send(msg)
+
     @commands.command(aliases=["x", "x-card", ],
                       help='signal that you are done with your turn')
     async def xcard(self, context: commands.Context):
