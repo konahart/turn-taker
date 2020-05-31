@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from collections import defaultdict
 from orderedset import OrderedSet
 from typing import Iterable
 
@@ -10,47 +11,55 @@ class TurnTracker(object):
         self._setup()
 
     def _setup(self):
-        self.player_queue = OrderedSet()
+        self.contexts = defaultdict(OrderedSet)
 
-    def reset(self):
-        self.player_queue.clear()
+    def _get_player_queue(self, context):
+        return self.contexts[context]
 
-    def advance_turn(self):
-        if not self.player_queue:
-            return
+    @with_player_queue
+    def reset(self, player_queue):
+        player_queue.clear()
 
+    @with_player_queue
+    def advance_turn(self, player_queue):
         # Move current player to end of queue
-        current_player = self.player_queue.pop(last=False)
-        self.player_queue.add(current_player)
+        current_player = player_queue.pop(last=False)
+        player_queue.add(current_player)
 
-    def get_current_player(self):
-        return self.player_queue[0]
+    @with_player_queue
+    def get_current_player(self, player_queue):
+        return player_queue[0]
 
-    def get_players(self):
-        return self.player_queue
+    @with_player_queue
+    def get_players(self, player_queue):
+        return player_queue
 
-    def add_players(self, players: Iterable) -> (list, list):
+    @with_player_queue
+    def add_players(self, players: Iterable, player_queue: defaultdict) -> (list, list):
         changed_players = []
         no_changed_players = []
         for player in players:
-            if player not in self.player_queue:
-                self.player_queue.add(player)
+            if player not in player_queue:
+                player_queue.add(player)
                 changed_players.append(player)
             else:
                 no_changed_players.append(player)
         return (changed_players, no_changed_players)
 
-    def remove_players(self, players: Iterable) -> (list, list):
+    @with_player_queue
+    def remove_players(self, players: Iterable, player_queue) -> (list, list):
         changed_players = []
         no_changed_players = []
         for player in players:
-            if player in self.player_queue:
-                self.player_queue.remove(player)
+            if player in player_queue:
+                player_queue.remove(player)
                 changed_players.append(player)
             else:
                 no_changed_players.append(player)
         return (changed_players, no_changed_players)
 
+
+# TODO: Games per channel, not 1 per bot
 
 class TurnTrackerCog(commands.Cog):
     """ Cog =  collection of commands, listeners, and some state """
