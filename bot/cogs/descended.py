@@ -18,7 +18,15 @@ class DescendedFromTheQueen(TurnTrackerCog):
     async def start(self, context: commands.Context):
         msg = '(For the Queen Intro)'
         await context.send(msg)
-        await self.done(context)
+        await self.draw(context)
+
+    @commands.command(aliases=["next", "prompt", "done"],
+                      help='signal that you are done with your turn')
+    async def draw(self, context: commands.Context):
+        self._game.advance_turn()
+        current_player = self._game.get_current_player()
+        msg = '{}: {}'.format(self.get_prompt(), current_player.mention)
+        await context.send(msg)
 
     @commands.command(aliases=["x", "x-card", ],
                       help='signal that you are done with your turn')
