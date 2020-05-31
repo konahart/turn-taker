@@ -25,7 +25,7 @@ class DescendedFromTheQueen(TurnTrackerCog):
     async def draw(self, context: commands.Context):
         self._game.advance_turn()
         current_player = self._game.get_current_player()
-        msg = '{}: {}'.format(self.get_prompt(), current_player.mention)
+        msg = '{}: {}'.format(current_player.mention, self.get_prompt())
         await context.send(msg)
 
     @commands.command(aliases=["pass"],
@@ -34,7 +34,7 @@ class DescendedFromTheQueen(TurnTrackerCog):
         self._game.advance_turn()
         current_player = self._game.get_current_player()
         msg = '{}, we\'d like to hear your answer to the question: {}'.format(
-            self.get_prompt(), current_player.mention)
+            current_player.mention, self.current_prompt)
         await context.send(msg)
 
     @commands.command(aliases=["x", "x-card", ],
@@ -42,6 +42,6 @@ class DescendedFromTheQueen(TurnTrackerCog):
     async def xcard(self, context: commands.Context):
         self._game.advance_turn()
         current_player = self._game.get_current_player()
-        msg = '{}: {}'.format(self.get_prompt(), current_player.mention)
+        msg = '{}: {}'.format(current_player.mention, self.get_prompt())
         await context.send(msg)
         await self.last_message.delete()
