@@ -70,68 +70,68 @@ class TurnTrackerCog(commands.Cog):
         turn_tracker = self._get_turn_tracker(context)
         return turn_tracker.get_players()
 
+    def _update_players(self, context, players, op) -> (list, list):
+        turn_tracker = self._get_turn_tracker(context)
+        if op == 'add':
+            change_func = turn_tracker.add_player
+        elif op == 'remove':
+            change_func = turn_tracker.remove_player
+        else:
+            print('unknown op: {}'.format(op))
+            return (None, None)
+        turn_tracker = self._get_turn_tracker(context)
+
+        changed_players = []
+        unchanged_players = []
+        for player in players:
+            if change_func(player):
+                changed_players.append(player)
+            else:
+                unchanged_players.append(player)
+        return (changed_players, unchanged_players)
+
+    async def update_players(self, context, players, dummy, op):
+        if not players:
+            if not dummy or dummy == "me":
+                players = [context.author]
+            else:
+                msg = "Sorry, I'm not able to recognize player {}! " \
+                      "Try @-mentioning them or have them use `{}{}`" \
+                      .format(dummy, self.bot.command_prefix, op)
+                await context.send(msg)
+        changed_players, unchanged_players = self._update_players(context,
+                                                                  players,
+                                                                  op)
+        msg = ""
+        if changed_players:
+            changed_msg_template = '{} added to current game!' if op == 'add' \
+                              else '{} removed from current game'
+            changed_msg = changed_msg_template.format(
+                join_mentions(", ", changed_players))
+            msg = changed_msg
+        if unchanged_players:
+            unchanged_msg_template = "{} already in game!" if op == 'add' \
+                                else "{} not in game"
+            unchanged_msg = unchanged_msg_template.format(
+                join_mentions(", ", unchanged_players))
+            msg = "{} ({})".format(msg, unchanged_msg) if msg else \
+                unchanged_msg
+
+        if msg:
+            await context.send(msg)
+
     @commands.command(name='add', help='sign up for game')
     async def add_player(self, context: commands.Context,
                          players: commands.Greedy[discord.Member],
                          dummy: Optional[str]):
-        if not players and dummy != "me":
-            players = [context.author]
-        turn_tracker = self._get_turn_tracker(context)
-        new_players = []
-        existing_players = []
-        for player in players:
-            if turn_tracker.add_player(player):
-                new_players.append(player)
-            else:
-                existing_players.append(player)
-
-        msg = ""
-        if new_players:
-            # user1 added to current game!
-            msg += '{} added to current game!'.format(
-                join_mentions(", ", new_players))
-        if existing_players:
-            # user2 already in game!
-            already_playing_msg = "{} already in game!".format(
-                join_mentions(", ", existing_players))
-            if msg:
-                # user1 added to current game! (user2 already in game!)
-                msg += " ({})".format(already_playing_msg)
-            else:
-                msg = already_playing_msg
-        await context.send(msg)
+        await self.update_players(context, players, dummy, "add")
 
     @commands.command(name='remove',
                       help='remove player(s) from the current game')
     async def remove_player(self, context: commands.Context,
                             players: commands.Greedy[discord.Member],
                             dummy: Optional[str]):
-        if not players and dummy != "me":
-            players = [context.author]
-        turn_tracker = self._get_turn_tracker(context)
-        removed_players = []
-        not_players = []
-        for player in players:
-            if turn_tracker.remove_player(player):
-                removed_players.append(player)
-            else:
-                not_players.append(player)
-
-        msg = ""
-        if removed_players:
-            # user1 removed from current game
-            msg += '{} removed from current game'.format(
-                join_mentions(", ", removed_players))
-        if not_players:
-            # user2 not in game
-            not_playing_msg = "{} not in game".format(
-                join_mentions(", ", not_players))
-            if msg:
-                # user1 removed from current game (user2 not in game)
-                msg += " ({})".format(not_playing_msg)
-            else:
-                msg = not_playing_msg
-        await context.send(msg)
+        await self.update_players(context, players, dummy, "remove")
 
     @commands.command(name='list',
                       help='list players of current game')
