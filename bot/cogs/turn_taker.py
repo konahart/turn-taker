@@ -3,7 +3,7 @@ from discord.ext import commands
 from collections import defaultdict
 from orderedset import OrderedSet
 from typing import Optional
-from ..utils import join_mentions
+from .utils import join_mentions
 
 
 class TurnTracker(object):
