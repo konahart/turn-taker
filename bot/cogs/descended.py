@@ -14,6 +14,14 @@ class DescendedFromTheQueen(TurnTrackerCog):
         self.current_prompt += 1
         return c
 
+    @commands.command(aliases=['instructions'])
+    async def intro(self, context: commands.Context):
+        msg = '(For the Queen Intro)'
+        await context.send(msg)
+        msg = 'Whoever wishes to may start, by using `{}start`'.format(
+            self.bot.command_prefix)
+        await context.send(msg)
+
     @commands.command(help='start the game')
     async def start(self, context: commands.Context):
         msg = '(For the Queen Intro)'
