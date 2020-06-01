@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from collections import defaultdict
 from orderedset import OrderedSet
-from typing import Iterable
+from typing import Iterable, Optional
 
 
 class TurnTracker(object):
@@ -56,8 +56,9 @@ class TurnTrackerCog(commands.Cog):
 
     @commands.command(name='add', help='sign up for game')
     async def add_player(self, context: commands.Context,
-                         players: commands.Greedy[discord.Member]):
-        if not players:
+                         players: commands.Greedy[discord.Member],
+                         dummy: Optional[str]):
+        if not players and dummy != "me":
             players = [context.author]
         turn_tracker = self._get_turn_tracker(context)
         new_players = []
@@ -87,8 +88,9 @@ class TurnTrackerCog(commands.Cog):
     @commands.command(name='remove',
                       help='remove player(s) from the current game')
     async def remove_player(self, context: commands.Context,
-                            players: commands.Greedy[discord.Member]):
-        if not players:
+                            players: commands.Greedy[discord.Member],
+                            dummy: Optional[str]):
+        if not players and dummy != "me":
             players = [context.author]
         turn_tracker = self._get_turn_tracker(context)
         removed_players = []
