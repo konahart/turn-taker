@@ -129,37 +129,14 @@ class TurnTrackerCog(commands.Cog):
             msg = 'No players currently signed up!'
         await context.send(msg)
 
-    @commands.command(help='start the game')
-    async def start(self, context: commands.Context):
+    def _get_current_player(self, context):
         turn_tracker = self._get_turn_tracker(context)
-        current_player = turn_tracker.get_current_player()
-        msg = 'Let\'s start with {}!'.format(current_player.mention)
-        await context.send(msg)
+        return turn_tracker.get_current_player()
 
-    @commands.command(help='summary of the current turn of the game')
-    async def status(self, context: commands.Context):
+    def _advance_turn(self, context):
         turn_tracker = self._get_turn_tracker(context)
-        current_player = turn_tracker.get_current_player()
-        msg = 'It is {}\'s turn'.format(current_player.mention)
-        await context.send(msg)
+        return turn_tracker.advance_turn()
 
-    @commands.command(aliases=["next", "skip"],
-                      help='signal that you are done with your turn')
-    async def done(self, context: commands.Context):
-        turn_tracker = self._get_turn_tracker(context)
-        turn_tracker.advance_turn()
-        current_player = turn_tracker.get_current_player()
-        msg = '{}\'s turn!'.format(current_player.mention)
-        await context.send(msg)
-
-    @commands.command(help='new game')
-    async def new(self, context: commands.Context):
+    def _reset(self, context):
         turn_tracker = self._get_turn_tracker(context)
         turn_tracker.reset()
-        await context.send("new game ready")
-
-    @commands.command(help='reset game')
-    async def reset(self, context: commands.Context):
-        turn_tracker = self._get_turn_tracker(context)
-        turn_tracker.reset()
-        await context.send("Game reset")
