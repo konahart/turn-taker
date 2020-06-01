@@ -10,13 +10,16 @@ class TurnTracker(object):
 
     def __init__(self, advance_func=None):
         self._player_queue = OrderedSet()
-        self.advance_func = advance_func or self.advance_turn
+        self.advance_func = advance_func or self._default_advance_turn
 
     def reset(self):
         self._player_queue.clear()
 
+    def advance_turn(self):
+        self.advance_func(self._player_queue)
+
     @staticmethod
-    def advance_turn(player_queue):
+    def _default_advance_turn(player_queue):
         # Move current player to end of queue
         current_player = player_queue.pop(last=False)
         player_queue.add(current_player)
