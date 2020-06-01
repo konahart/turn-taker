@@ -66,6 +66,10 @@ class TurnTrackerCog(commands.Cog):
         turn_tracker = self._get_turn_tracker(context)
         turn_tracker.reset()
 
+    def _get_players(self, context):
+        turn_tracker = self._get_turn_tracker(context)
+        return turn_tracker.get_players()
+
     @commands.command(name='add', help='sign up for game')
     async def add_player(self, context: commands.Context,
                          players: commands.Greedy[discord.Member],
@@ -133,8 +137,7 @@ class TurnTrackerCog(commands.Cog):
                       help='list players of current game')
     async def list_players(self, context: commands.Context,
                            players: commands.Greedy[discord.Member]):
-        turn_tracker = self._get_turn_tracker(context)
-        players = turn_tracker.get_players()
+        players = self._get_players(context)
         if players:
             msg = 'Current players: {}'.format(join_mentions(", ", players))
         else:
