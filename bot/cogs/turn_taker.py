@@ -8,7 +8,7 @@ from typing import Iterable
 class TurnTracker(object):
 
     def __init__(self):
-        self._player_queue = OrderedSet
+        self._player_queue = OrderedSet()
 
     def reset(self):
         self._player_queue.clear()
@@ -24,14 +24,14 @@ class TurnTracker(object):
     def get_players(self):
         return OrderedSet(self._player_queue)
 
-    def add_player(self, player: discord.Member) -> bool:
+    def add_player(self, player) -> bool:
         if player not in self._player_queue:
             self._player_queue.add(player)
             return True
         else:
             return False
 
-    def remove_player(self, player: discord.Member) -> bool:
+    def remove_player(self, player) -> bool:
         if player in self._player_queue:
             self._player_queue.remove(player)
             return True
