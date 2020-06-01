@@ -54,7 +54,17 @@ class TurnTrackerCog(commands.Cog):
     """ Cog =  collection of commands, listeners, and some state """
     def __init__(self, bot):
         self.bot = bot
-        self._game = TurnTracker()
+        self._contexts = defaultdict(TurnTracker)
+
+    def _get_player_queue(self, context):
+        return self.contexts[context]
+
+    def with_player_queue(self, func):
+        @functools.wraps(func)
+        def wrapper_get_player_queue(*args, **kwargs):
+            player_queue = self._get_player_queue(context)
+            return func(player_queue, *args, **kwargs)
+        return wrapper_do_twice
 
     def join_member_mentions(self, seperator: str,
                              members: Iterable[discord.Member]) -> str:
