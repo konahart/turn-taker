@@ -24,27 +24,19 @@ class TurnTracker(object):
     def get_players(self):
         return OrderedSet(self._player_queue)
 
-    def add_players(self, players: Iterable) -> (list, list):
-        changed_players = []
-        no_changed_players = []
-        for player in players:
-            if player not in self._player_queue:
-                self._player_queue.add(player)
-                changed_players.append(player)
-            else:
-                no_changed_players.append(player)
-        return (changed_players, no_changed_players)
+    def add_player(self, player: discord.Member) -> bool:
+        if player not in self._player_queue:
+            self._player_queue.add(player)
+            return True
+        else:
+            return False
 
-    def remove_players(self, players: Iterable, player_queue) -> (list, list):
-        changed_players = []
-        no_changed_players = []
-        for player in players:
-            if player in player_queue:
-                self._player_queue.remove(player)
-                changed_players.append(player)
-            else:
-                no_changed_players.append(player)
-        return (changed_players, no_changed_players)
+    def remove_player(self, player: discord.Member) -> bool:
+        if player in self._player_queue:
+            self._player_queue.remove(player)
+            return True
+        else:
+            return False
 
 
 # TODO: Games per channel, not 1 per bot
@@ -68,7 +60,13 @@ class TurnTrackerCog(commands.Cog):
         if not players:
             players = [context.author]
         turn_tracker = self._get_turn_tracker(context)
-        new_players, existing_players = turn_tracker.add_players(players)
+        new_players = []
+        existing_players = []
+        for player in players:
+            if turn_tracker.add_player(player):
+                new_players.append(player)
+            else:
+                existing_players.append(player)
 
         msg = ""
         if new_players:
@@ -93,7 +91,13 @@ class TurnTrackerCog(commands.Cog):
         if not players:
             players = [context.author]
         turn_tracker = self._get_turn_tracker(context)
-        removed_players, not_players = turn_tracker.remove_players(players)
+        removed_players = []
+        not_players = []
+        for player in players:
+            if turn_tracker.remove_player(player):
+                removed_players.append(player)
+            else:
+                not_players.append(player)
 
         msg = ""
         if removed_players:
