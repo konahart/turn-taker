@@ -8,16 +8,18 @@ from .utils import join_mentions
 
 class TurnTracker(object):
 
-    def __init__(self):
+    def __init__(self, advance_func=None):
         self._player_queue = OrderedSet()
+        self.advance_func = advance_func or self.advance_turn
 
     def reset(self):
         self._player_queue.clear()
 
-    def advance_turn(self):
+    @staticmethod
+    def advance_turn(player_queue):
         # Move current player to end of queue
-        current_player = self._player_queue.pop(last=False)
-        self._player_queue.add(current_player)
+        current_player = player_queue.pop(last=False)
+        player_queue.add(current_player)
 
     def get_current_player(self):
         return self._player_queue[0]
