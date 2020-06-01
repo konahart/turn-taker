@@ -1,5 +1,4 @@
 import discord
-import functools
 from discord.ext import commands
 from collections import defaultdict
 from orderedset import OrderedSet
@@ -56,15 +55,8 @@ class TurnTrackerCog(commands.Cog):
         self.bot = bot
         self._contexts = defaultdict(TurnTracker)
 
-    def _get_player_queue(self, context):
-        return self.contexts[context]
-
-    def with_player_queue(self, func):
-        @functools.wraps(func)
-        def wrapper_get_player_queue(*args, **kwargs):
-            player_queue = self._get_player_queue(context)
-            return func(player_queue, *args, **kwargs)
-        return wrapper_do_twice
+    def _get_turn_tracker(self, context):
+        return self._contexts[context]
 
     def join_member_mentions(self, seperator: str,
                              members: Iterable[discord.Member]) -> str:
@@ -75,7 +67,8 @@ class TurnTrackerCog(commands.Cog):
                          players: commands.Greedy[discord.Member]):
         if not players:
             players = [context.author]
-        new_players, existing_players = self._game.add_players(players)
+        turn_tracker = self._get_turn_tracker(context)
+        new_players, existing_players = turn_tracker.add_players(players)
 
         msg = ""
         if new_players:
@@ -99,7 +92,8 @@ class TurnTrackerCog(commands.Cog):
                             players: commands.Greedy[discord.Member]):
         if not players:
             players = [context.author]
-        removed_players, not_players = self._game.remove_players(players)
+        turn_tracker = self._get_turn_tracker(context)
+        removed_players, not_players = turn_tracker.remove_players(players)
 
         msg = ""
         if removed_players:
@@ -121,7 +115,8 @@ class TurnTrackerCog(commands.Cog):
                       help='list players of current game')
     async def list_players(self, context: commands.Context,
                            players: commands.Greedy[discord.Member]):
-        players = self._game.get_players()
+        turn_tracker = self._get_turn_tracker(context)
+        players = turn_tracker.get_players()
         if players:
             msg = 'Current players: {}'.format(
                 self.join_member_mentions(", ", players))
@@ -131,30 +126,35 @@ class TurnTrackerCog(commands.Cog):
 
     @commands.command(help='start the game')
     async def start(self, context: commands.Context):
-        current_player = self._game.get_current_player()
+        turn_tracker = self._get_turn_tracker(context)
+        current_player = turn_tracker.get_current_player()
         msg = 'Let\'s start with {}!'.format(current_player.mention)
         await context.send(msg)
 
     @commands.command(help='summary of the current turn of the game')
     async def status(self, context: commands.Context):
-        current_player = self._game.get_current_player()
+        turn_tracker = self._get_turn_tracker(context)
+        current_player = turn_tracker.get_current_player()
         msg = 'It is {}\'s turn'.format(current_player.mention)
         await context.send(msg)
 
     @commands.command(aliases=["next", "skip"],
                       help='signal that you are done with your turn')
     async def done(self, context: commands.Context):
-        self._game.advance_turn()
-        current_player = self._game.get_current_player()
+        turn_tracker = self._get_turn_tracker(context)
+        turn_tracker.advance_turn()
+        current_player = turn_tracker.get_current_player()
         msg = '{}\'s turn!'.format(current_player.mention)
         await context.send(msg)
 
     @commands.command(help='new game')
     async def new(self, context: commands.Context):
-        self._game.reset()
+        turn_tracker = self._get_turn_tracker(context)
+        turn_tracker.reset()
         await context.send("new game ready")
 
     @commands.command(help='reset game')
     async def reset(self, context: commands.Context):
-        self._game.reset()
+        turn_tracker = self._get_turn_tracker(context)
+        turn_tracker.reset()
         await context.send("Game reset")
