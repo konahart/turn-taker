@@ -42,8 +42,6 @@ class TurnTracker(object):
             return False
 
 
-# TODO: Games per channel, not 1 per bot
-
 class TurnTrackerCog(commands.Cog):
     """ Cog =  collection of commands, listeners, and some state """
     def __init__(self, bot):
@@ -51,7 +49,7 @@ class TurnTrackerCog(commands.Cog):
         self._contexts = defaultdict(TurnTracker)
 
     def _get_turn_tracker(self, context):
-        return self._contexts[context]
+        return self._contexts[context.channel.id]
 
     @commands.command(name='add', help='sign up for game')
     async def add_player(self, context: commands.Context,
