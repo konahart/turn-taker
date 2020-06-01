@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 from collections import defaultdict
 from orderedset import OrderedSet
-from typing import Iterable, Optional
+from typing import Optional
+from ..utils import join_mentions
 
 
 class TurnTracker(object):
@@ -50,10 +51,6 @@ class TurnTrackerCog(commands.Cog):
     def _get_turn_tracker(self, context):
         return self._contexts[context]
 
-    def join_member_mentions(self, seperator: str,
-                             members: Iterable[discord.Member]) -> str:
-        return seperator.join([member.mention for member in members])
-
     @commands.command(name='add', help='sign up for game')
     async def add_player(self, context: commands.Context,
                          players: commands.Greedy[discord.Member],
@@ -73,11 +70,11 @@ class TurnTrackerCog(commands.Cog):
         if new_players:
             # user1 added to current game!
             msg += '{} added to current game!'.format(
-                self.join_member_mentions(", ", new_players))
+                join_mentions(", ", new_players))
         if existing_players:
             # user2 already in game!
             already_playing_msg = "{} already in game!".format(
-                self.join_member_mentions(", ", existing_players))
+                join_mentions(", ", existing_players))
             if msg:
                 # user1 added to current game! (user2 already in game!)
                 msg += " ({})".format(already_playing_msg)
@@ -105,11 +102,11 @@ class TurnTrackerCog(commands.Cog):
         if removed_players:
             # user1 removed from current game
             msg += '{} removed from current game'.format(
-                self.join_member_mentions(", ", removed_players))
+                join_mentions(", ", removed_players))
         if not_players:
             # user2 not in game
             not_playing_msg = "{} not in game".format(
-                self.join_member_mentions(", ", not_players))
+                join_mentions(", ", not_players))
             if msg:
                 # user1 removed from current game (user2 not in game)
                 msg += " ({})".format(not_playing_msg)
@@ -124,8 +121,7 @@ class TurnTrackerCog(commands.Cog):
         turn_tracker = self._get_turn_tracker(context)
         players = turn_tracker.get_players()
         if players:
-            msg = 'Current players: {}'.format(
-                self.join_member_mentions(", ", players))
+            msg = 'Current players: {}'.format(join_mentions(", ", players))
         else:
             msg = 'No players currently signed up!'
         await context.send(msg)
