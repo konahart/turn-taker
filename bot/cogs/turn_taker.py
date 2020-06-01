@@ -54,6 +54,18 @@ class TurnTrackerCog(commands.Cog):
     def _get_turn_tracker(self, context):
         return self._contexts[context.channel.id]
 
+    def _get_current_player(self, context):
+        turn_tracker = self._get_turn_tracker(context)
+        return turn_tracker.get_current_player()
+
+    def _advance_turn(self, context):
+        turn_tracker = self._get_turn_tracker(context)
+        return turn_tracker.advance_turn()
+
+    def _reset(self, context):
+        turn_tracker = self._get_turn_tracker(context)
+        turn_tracker.reset()
+
     @commands.command(name='add', help='sign up for game')
     async def add_player(self, context: commands.Context,
                          players: commands.Greedy[discord.Member],
@@ -128,15 +140,3 @@ class TurnTrackerCog(commands.Cog):
         else:
             msg = 'No players currently signed up!'
         await context.send(msg)
-
-    def _get_current_player(self, context):
-        turn_tracker = self._get_turn_tracker(context)
-        return turn_tracker.get_current_player()
-
-    def _advance_turn(self, context):
-        turn_tracker = self._get_turn_tracker(context)
-        return turn_tracker.advance_turn()
-
-    def _reset(self, context):
-        turn_tracker = self._get_turn_tracker(context)
-        turn_tracker.reset()
