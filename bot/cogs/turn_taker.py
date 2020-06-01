@@ -23,7 +23,7 @@ class TurnTracker(object):
         return self._player_queue[0]
 
     def get_players(self):
-        return self._player_queue
+        return OrderedSet(self._player_queue)
 
     def add_players(self, players: Iterable) -> (list, list):
         changed_players = []
