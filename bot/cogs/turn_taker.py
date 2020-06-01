@@ -9,58 +9,39 @@ from typing import Iterable
 class TurnTracker(object):
 
     def __init__(self):
-        self._setup()
+        self._player_queue = OrderedSet
 
-    def _setup(self):
-        self.contexts = defaultdict(OrderedSet)
+    def reset(self):
+        self._player_queue.clear()
 
-    def _get_player_queue(self, context):
-        return self.contexts[context]
-
-    def with_player_queue(self, func):
-        @functools.wraps(func)
-        def wrapper_get_player_queue(*args, **kwargs):
-            player_queue = self._get_player_queue(context)
-            return func(player_queue, *args, **kwargs)
-        return wrapper_do_twice
-
-    @with_player_queue
-    def reset(self, player_queue):
-        player_queue.clear()
-
-    @with_player_queue
-    def advance_turn(self, player_queue):
+    def advance_turn(self):
         # Move current player to end of queue
-        current_player = player_queue.pop(last=False)
-        player_queue.add(current_player)
+        current_player = self._player_queue.pop(last=False)
+        self._player_queue.add(current_player)
 
-    @with_player_queue
-    def get_current_player(self, player_queue):
-        return player_queue[0]
+    def get_current_player(self):
+        return self._player_queue[0]
 
-    @with_player_queue
-    def get_players(self, player_queue):
-        return player_queue
+    def get_players(self):
+        return self._player_queue
 
-    @with_player_queue
-    def add_players(self, players: Iterable, player_queue: defaultdict) -> (list, list):
+    def add_players(self, players: Iterable) -> (list, list):
         changed_players = []
         no_changed_players = []
         for player in players:
-            if player not in player_queue:
-                player_queue.add(player)
+            if player not in self._player_queue:
+                self._player_queue.add(player)
                 changed_players.append(player)
             else:
                 no_changed_players.append(player)
         return (changed_players, no_changed_players)
 
-    @with_player_queue
     def remove_players(self, players: Iterable, player_queue) -> (list, list):
         changed_players = []
         no_changed_players = []
         for player in players:
             if player in player_queue:
-                player_queue.remove(player)
+                self._player_queue.remove(player)
                 changed_players.append(player)
             else:
                 no_changed_players.append(player)
