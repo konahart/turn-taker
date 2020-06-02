@@ -28,7 +28,7 @@ class TurnTracker(object):
         return self._player_queue[0]
 
     def get_next_player(self):
-        return self._player_queue[1]
+        return self.advance_func(self.get_players())[0]
 
     def get_players(self):
         return OrderedSet(self._player_queue)
