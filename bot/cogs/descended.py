@@ -24,8 +24,16 @@ class DescendedFromTheQueen(TurnTrackerCog):
 
     @commands.command(help='start the game')
     async def start(self, context: commands.Context):
-        msg = '(For the Queen Intro)'
-        await context.send(msg)
+        first_player = context.author
+        turn_tracker = self._get_turn_tracker(context)
+
+        # Ensure starting player is in the queue
+        turn_tracker.add_player(first_player)
+
+        # Rotate starting player to the front
+        for _ in range(turn_tracker.get_player_count()):
+            if turn_tracker.get_next_player() == first_player:
+                break
         await self.draw(context)
 
     @commands.command(aliases=["next", "prompt", "done"],
