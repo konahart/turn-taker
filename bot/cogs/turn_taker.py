@@ -30,6 +30,9 @@ class TurnTracker(object):
     def get_players(self):
         return OrderedSet(self._player_queue)
 
+    def get_player_count(self):
+        return len(self._player_queue)
+
     def add_player(self, player) -> bool:
         if player not in self._player_queue:
             self._player_queue.add(player)
