@@ -30,6 +30,16 @@ class TurnTracker(object):
     def get_next_player(self):
         return self.advance_func(self.get_players())[0]
 
+    def fast_forward(self, player):
+        # Ensure player is in the queue
+        self.add_player(player)
+
+        # Rotate player to the front
+        for _ in range(len(self._player_queue)):
+            if self._player_queue[0] == player:
+                break
+            TurnTracker._default_advance_turn(self._player_queue)
+
     def get_players(self):
         return OrderedSet(self._player_queue)
 
