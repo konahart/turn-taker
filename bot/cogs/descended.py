@@ -1,18 +1,17 @@
 from discord.ext import commands
-from .turn_taker import TurnTrackerCog
+from .turn_taker import TurnTracker, TurnTrackerCog
+
+
+class DescendedGame(TurnTracker):
+    def __init__(self):
+        self.current_prompt = 0
 
 
 class DescendedFromTheQueen(TurnTrackerCog):
     """ Cog =  collection of commands, listeners, and some state """
     def __init__(self, bot):
         super().__init__(bot)
-        self.current_prompt = 0
         self.last_message = None
-
-    def get_prompt(self):
-        c = self.current_prompt
-        self.current_prompt += 1
-        return c
 
     def _send_prompt(self, context: commands.Context):
         player = self._get_current_player(context)
