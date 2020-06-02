@@ -6,7 +6,7 @@ from typing import Optional
 from .utils import join_mentions
 
 
-class TurnTracker(object):
+class TurnGame(object):
 
     def __init__(self, advance_func=None):
         self._player_queue = OrderedSet()
@@ -38,7 +38,7 @@ class TurnTracker(object):
         for _ in range(len(self._player_queue)):
             if self._player_queue[0] == player:
                 break
-            TurnTracker._default_advance_turn(self._player_queue)
+            TurnGame._default_advance_turn(self._player_queue)
 
     def get_players(self):
         return OrderedSet(self._player_queue)
@@ -61,41 +61,40 @@ class TurnTracker(object):
             return False
 
 
-class TurnTrackerCog(commands.Cog):
+class TurnGameCog(commands.Cog):
     """ Cog =  collection of commands, listeners, and some state """
     def __init__(self, bot):
         self.bot = bot
-        self._contexts = defaultdict(TurnTracker)
+        self._contexts = defaultdict(TurnGame)
 
-    def _get_turn_tracker(self, context):
+    def _get_game(self, context):
         return self._contexts[context.channel.id]
 
     def _get_current_player(self, context):
-        turn_tracker = self._get_turn_tracker(context)
-        return turn_tracker.get_current_player()
+        game = self._get_game(context)
+        return game.get_current_player()
 
     def _advance_turn(self, context):
-        turn_tracker = self._get_turn_tracker(context)
-        return turn_tracker.advance_turn()
+        game = self._get_game(context)
+        return game.advance_turn()
 
     def _reset(self, context):
-        turn_tracker = self._get_turn_tracker(context)
-        turn_tracker.reset()
+        game = self._get_game(context)
+        game.reset()
 
     def _get_players(self, context):
-        turn_tracker = self._get_turn_tracker(context)
-        return turn_tracker.get_players()
+        game = self._get_game(context)
+        return game.get_players()
 
     def _update_players(self, context, players, op) -> (list, list):
-        turn_tracker = self._get_turn_tracker(context)
+        game = self._get_game(context)
         if op == 'add':
-            change_func = turn_tracker.add_player
+            change_func = game.add_player
         elif op == 'remove':
-            change_func = turn_tracker.remove_player
+            change_func = game.remove_player
         else:
             print('unknown op: {}'.format(op))
             return (None, None)
-        turn_tracker = self._get_turn_tracker(context)
 
         changed_players = []
         unchanged_players = []

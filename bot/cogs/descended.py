@@ -1,8 +1,8 @@
 from discord.ext import commands
-from .turn_taker import TurnTracker, TurnTrackerCog
+from .turn_taker import TurnGame, TurnGameCog
 
 
-class DescendedGame(TurnTracker):
+class DescendedGame(TurnGame):
     def __init__(self):
         self.current_prompt = 0
 
@@ -12,7 +12,7 @@ class DescendedGame(TurnTracker):
         return c
 
 
-class DescendedFromTheQueen(TurnTrackerCog):
+class DescendedFromTheQueen(TurnGameCog):
     """ Cog =  collection of commands, listeners, and some state """
     def __init__(self, bot):
         super().__init__(bot)
@@ -34,15 +34,15 @@ class DescendedFromTheQueen(TurnTrackerCog):
     @commands.command(help='start the game')
     async def start(self, context: commands.Context):
         first_player = context.author
-        turn_tracker = self._get_turn_tracker(context)
-        turn_tracker.fast_forward(first_player)
+        game = self._get_game(context)
+        game.fast_forward(first_player)
         await self._send_prompt(context)
 
     @commands.command(aliases=["next", "prompt", "done"],
                       help='signal that you are done with your turn')
     async def draw(self, context: commands.Context):
-        turn_tracker = self._get_turn_tracker(context)
-        turn_tracker.advance_turn()
+        game = self._get_game(context)
+        game.advance_turn()
         await self._send_prompt(context)
 
     @commands.command(aliases=["pass"],
