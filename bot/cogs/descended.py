@@ -6,6 +6,11 @@ class DescendedGame(TurnTracker):
     def __init__(self):
         self.current_prompt = 0
 
+    def get_prompt(self):
+        c = self.current_prompt
+        self.current_prompt += 1
+        return c
+
 
 class DescendedFromTheQueen(TurnTrackerCog):
     """ Cog =  collection of commands, listeners, and some state """
