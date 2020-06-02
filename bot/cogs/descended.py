@@ -1,5 +1,5 @@
 from discord.ext import commands
-from .turn_taker import TurnGame, TurnGameCog
+from .turn_game import TurnGame, TurnGameCog
 
 
 class DescendedGame(TurnGame):
