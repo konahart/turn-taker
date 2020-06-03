@@ -8,7 +8,7 @@ class DescendedGame(TurnGame):
     def __init__(self, game):
         self.current_prompt = 0
 
-    def get_prompt(self):
+    def get_current_prompt(self):
         c = self.current_prompt
         self.current_prompt += 1
         return c
@@ -21,10 +21,11 @@ class DescendedFromTheQueenCog(TurnGameCog):
         self.last_message = None
         self._contexts = defaultdict(partial(DescendedGame, game))
 
-
-    def _send_prompt(self, context: commands.Context):
-        player = self._get_current_player(context)
-        msg = '{}: {}'.format(player.mention, self.get_prompt())
+    async def _send_prompt(self, context: commands.Context):
+        game = self._get_game(context)
+        player = game.get_current_player()
+        prompt = game.get_current_prompt()
+        msg = '{}: {}'.format(player.mention, prompt)
         await context.send(msg)
 
     @commands.command(aliases=['instructions'])
