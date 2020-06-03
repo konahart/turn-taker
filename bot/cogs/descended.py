@@ -1,9 +1,11 @@
 from discord.ext import commands
+from collections import defaultdict
+from functools import partial
 from .turn_game import TurnGame, TurnGameCog
 
 
 class DescendedGame(TurnGame):
-    def __init__(self):
+    def __init__(self, game):
         self.current_prompt = 0
 
     def get_prompt(self):
@@ -14,9 +16,11 @@ class DescendedGame(TurnGame):
 
 class DescendedFromTheQueen(TurnGameCog):
     """ Cog =  collection of commands, listeners, and some state """
-    def __init__(self, bot):
+    def __init__(self, bot, game):
         super().__init__(bot)
         self.last_message = None
+        self._contexts = defaultdict(partial(DescendedGame, game))
+
 
     def _send_prompt(self, context: commands.Context):
         player = self._get_current_player(context)
