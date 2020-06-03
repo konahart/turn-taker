@@ -10,6 +10,9 @@ class DescendedGame(TurnGame):
         self.current_prompt = 0
 
     def get_current_prompt(self):
+        return self.current_prompt
+
+    def advance_prompt(self):
         c = self.current_prompt
         self.current_prompt += 1
         return c
@@ -49,15 +52,17 @@ class DescendedFromTheQueenCog(TurnGameCog):
     async def draw(self, context: commands.Context):
         game = self._get_game(context)
         game.advance_turn()
+        game.advance_prompt()
         await self._send_prompt(context)
 
     @commands.command(aliases=["pass"],
                       help='pass your prompt to the next player')
     async def skip(self, context: commands.Context):
-        self._game.advance_turn()
-        current_player = self._game.get_current_player()
+        game = self._get_game(context)
+        game.advance_turn()
+        current_player = game.get_current_player()
         msg = '{}, we\'d like to hear your answer to the question: {}'.format(
-            current_player.mention, self.current_prompt)
+            current_player.mention, game.get_current_prompt())
         await context.send(msg)
 
     @commands.command(aliases=["x", "x-card", ],
