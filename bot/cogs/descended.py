@@ -14,7 +14,7 @@ class DescendedGame(TurnGame):
         return c
 
 
-class DescendedFromTheQueen(TurnGameCog):
+class DescendedFromTheQueenCog(TurnGameCog):
     """ Cog =  collection of commands, listeners, and some state """
     def __init__(self, bot, game):
         super().__init__(bot)

@@ -1,11 +1,11 @@
 from discord.ext.commands import Bot
 from creds import TOKEN
-from cogs.descended import DescendedFromTheQueen
+from cogs.descended import DescendedFromTheQueenCog
 
 COMMAND_PREFIX = '+'
 
 bot = Bot(command_prefix=COMMAND_PREFIX)
-bot.add_cog(DescendedFromTheQueen(bot))
+bot.add_cog(DescendedFromTheQueenCog(bot))
 
 
 @bot.event
