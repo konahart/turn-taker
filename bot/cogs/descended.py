@@ -71,11 +71,12 @@ class DescendedFromTheQueenCog(TurnGameCog):
             current_player.mention, game.get_current_prompt())
         await context.send(msg)
 
-    @commands.command(aliases=["x", "x-card", ],
-                      help='signal that you are done with your turn')
+    @commands.command(aliases=["x", "x-card", "discard"],
+                      help='remove the previous prompt from the game')
     async def xcard(self, context: commands.Context):
-        self._game.advance_turn()
-        current_player = self._game.get_current_player()
-        msg = '{}: {}'.format(current_player.mention, self.get_prompt())
-        await context.send(msg)
-        await self.last_message.delete()
+        game = self._get_game(context)
+        xCardMessage = "[this prompt was X-Carded :heart: ]"
+        await game.last_message.edit(content=xCardMessage)
+        # replace with new prompt
+        game.advance_prompt()
+        await self._send_prompt(context)
