@@ -9,6 +9,10 @@ from .turn_game import TurnGame, TurnGameCog
 
 
 ZERO_WIDTH_SPACE = '\u200b'  # for sending 'empty' messages
+PROMPT_MEASURES = {"prompt", "prompts", "card", "cards", "question",
+                  "questions"}
+HOUR_MEAURES = {"hour", "hours", "h"}
+MINUTE_MEASURES = {"minute", "minutes", "min", "m"}
 
 
 class DescendedGameData(object):
@@ -124,6 +128,19 @@ class DescendedFromTheQueenCog(TurnGameCog):
         prompt = game.get_current_prompt()
         msg = '{}: {}'.format(player.mention, prompt)
         await self._send_game_msg(context, msg, game=game)
+
+    @commands.command(aliases=["duration"],
+                      help='set length of game in either prompts, hours, or '
+                           'minutes')
+    async def length(self, context: commands.Context, length: float,
+                     measurement: str):
+        game = self._get_game(context)
+        if measurement in PROMPT_MEASURES:
+            game.set_prompt_length(length)
+        elif measurement in HOUR_MEAURES:
+            game.set_time_length(int(length * 60))
+        elif measurement in MINUTE_MEASURES:
+            game.set_time_length(length)
 
     @commands.command(aliases=['instructions'])
     async def intro(self, context: commands.Context):
