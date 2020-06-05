@@ -1,4 +1,5 @@
 import json
+import datetime
 import random
 import discord
 from discord.ext import commands
@@ -27,10 +28,11 @@ class DescendedGame(TurnGame):
         self._game_data = game_data
         self.current_prompt_index = None
         self.used_prompt_indices = set()
-        self._get_random_prompt_index()
         self.previous_message = None
         self.maximum_prompts = 20
-        self.timer = None
+        self.start_time = None
+        self.maximum_minutes = None
+        self.end_time = None
 
     @property
     def title(self):
@@ -54,9 +56,23 @@ class DescendedGame(TurnGame):
 
     @property
     def current_prompt(self):
-        if self.current_prompt_index:
+        if not self.current_prompt_index:
+            self._set_end_time()
+            self._get_random_prompt_index()
+        if self.current_prompt_index >= 0:
             return self.prompts[self.current_prompt_index]
         return self.final_prompt
+
+    def _set_end_time(self):
+        if self.maximum_minutes:
+            self.end_time = datetime.datetime.now() + \
+                datetime.timedelta(0, max(self.maximum_minutes, 1))
+
+    def set_prompt_length(self, maximum_prompts):
+        self.maximum_prompts = maximum_prompts
+
+    def set_time_length(self, maximum_minutes):
+        self.maximum_minutes = maximum_minutes - (2 * len(self._player_queue))
 
     def get_current_prompt(self):
         return self.current_prompt
@@ -69,8 +85,8 @@ class DescendedGame(TurnGame):
            len(self.used_prompt_indices) >= self.maximum_prompts:
             # Reached maximum number of prompts
             return True
-        if self.timer:
-            return self.timer.elapsed()
+        if self.end_time:
+            return datetime.datetime.now() >= self.end_time
         return False
 
     def _get_random_prompt_index(self):
@@ -87,7 +103,7 @@ class DescendedGame(TurnGame):
         self._get_random_prompt_index()
 
     def final_question(self):
-        self.current_prompt_index = None
+        self.current_prompt_index = -1
 
 
 class DescendedFromTheQueenCog(TurnGameCog):
