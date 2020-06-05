@@ -1,7 +1,20 @@
+import copy
+import json
 from discord.ext import commands
 from collections import defaultdict
 from functools import partial
 from .turn_game import TurnGame, TurnGameCog
+
+
+class DescendedGameData(object):
+    def __init__(self, game_file):
+        with open(game_file, 'r') as f:
+            data = json.load(f)
+        self.title = data["title"]
+        self.intro = data["intro"]
+        self.instructions = data["instructions"]
+        self.final_question = data["final"]
+        self.prompts = data["prompts"]
 
 
 class DescendedGame(TurnGame):
@@ -9,6 +22,13 @@ class DescendedGame(TurnGame):
         super().__init__()
         self.current_prompt = 0
         self.last_message = None
+
+    def copy_game_data(self, game_data):
+        self.title = game_data.title
+        self.intro = copy.deepcopy(game_data.intro)
+        self.instructions = copy.deepcopy(game_data.instructions)
+        self.final_question = game_data.final_question
+        self.prompts = copy.deepcopy(game_data.prompts)
 
     def get_current_prompt(self):
         return self.current_prompt
@@ -21,10 +41,10 @@ class DescendedGame(TurnGame):
 
 class DescendedFromTheQueenCog(TurnGameCog):
     """ Cog =  collection of commands, listeners, and some state """
-    def __init__(self, bot, game=""):
+    def __init__(self, bot, game_file):
         super().__init__(bot)
-
-        self._contexts = defaultdict(partial(DescendedGame, game))
+        self.game_data = DescendedGameData(game_file)
+        self._contexts = defaultdict(partial(DescendedGame, self.game_data))
 
     async def _send_game_msg(self, context: commands.Context, msg, game=None):
         if not game:
