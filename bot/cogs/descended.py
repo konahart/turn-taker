@@ -1,9 +1,13 @@
 import copy
 import json
+import discord
 from discord.ext import commands
 from collections import defaultdict
 from functools import partial
 from .turn_game import TurnGame, TurnGameCog
+
+
+ZERO_WIDTH_SPACE = '\u200b'  # for sending 'empty' messages
 
 
 class DescendedGameData(object):
@@ -60,10 +64,14 @@ class DescendedFromTheQueenCog(TurnGameCog):
 
     @commands.command(aliases=['instructions'])
     async def intro(self, context: commands.Context):
-        msg = '(For the Queen Intro)'
-        await context.send(msg)
-        msg = 'Whoever wishes to may start, by using `{}start`'.format(
-            self.bot.command_prefix)
+        game = self._get_game(context)
+        embed = discord.Embed(title=game.title,
+                              colour=discord.Colour(0x3094ec),
+                              description="_{}_"
+                              .format("\n\n".join(game.intro)))
+        await context.send(content=ZERO_WIDTH_SPACE, embed=embed)
+        msg = 'Whoever wishes to may start, by using `{}start`' \
+              .format(self.bot.command_prefix)
         await context.send(msg)
 
     @commands.command(help='start the game')
