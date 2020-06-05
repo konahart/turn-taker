@@ -29,7 +29,8 @@ class DescendedGame(TurnGame):
         self.used_prompt_indices = set()
         self._get_random_prompt_index()
         self.previous_message = None
-        self.maximum_prompts = 2
+        self.maximum_prompts = 20
+        self.timer = None
 
     @property
     def title(self):
@@ -60,6 +61,18 @@ class DescendedGame(TurnGame):
     def get_current_prompt(self):
         return self.current_prompt
 
+    def _end_condition_met(self):
+        if len(self.used_prompt_indices) >= len(self.prompts):
+            # Ran out of prompts
+            return True
+        if self.maximum_prompts and \
+           len(self.used_prompt_indices) >= self.maximum_prompts:
+            # Reached maximum number of prompts
+            return True
+        if self.timer:
+            return self.timer.elapsed()
+        return False
+
     def _get_random_prompt_index(self):
         index = random.randrange(0, len(self.prompts) - 1)
         while index in self.used_prompt_indices:
@@ -68,9 +81,7 @@ class DescendedGame(TurnGame):
         self.used_prompt_indices.add(index)
 
     def advance_prompt(self):
-        if len(self.used_prompt_indices) >= len(self.prompts) or \
-           len(self.used_prompt_indices) >= self.maximum_prompts:
-            # Ran out of prompts, end the game
+        if self._end_condition_met():
             self.final_question()
             return
         self._get_random_prompt_index()
