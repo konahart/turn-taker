@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 from collections import defaultdict
 from functools import partial
+from typing import Optional
 from .turn_game import TurnGame, TurnGameCog
 
 
@@ -133,14 +134,27 @@ class DescendedFromTheQueenCog(TurnGameCog):
                       help='set length of game in either prompts, hours, or '
                            'minutes')
     async def length(self, context: commands.Context, length: float,
-                     measurement: str):
+                     measurement: Optional[str]):
         game = self._get_game(context)
-        if measurement in PROMPT_MEASURES:
+        msg_template = "Game length set to {} {}"
+        if not measurement:
+            msg = "Measurement required " \
+                  "-- try '{length} prompts', '{length} minutes', " \
+                  "or '{length} hours'".format(length=length)
+        elif measurement in PROMPT_MEASURES:
             game.set_prompt_length(length)
+            msg = msg_template.format(game.maximum_prompts, "prompts")
         elif measurement in HOUR_MEAURES:
             game.set_time_length(int(length * 60))
+            msg = msg_template.format(game.maximum_minutes, "minutes")
         elif measurement in MINUTE_MEASURES:
             game.set_time_length(length)
+            msg = msg_template.format(game.maximum_minutes, "minutes")
+        else:
+            msg = "Unable to understand measurement '{}' " \
+                  "-- try '{length} prompts', '{length} minutes', " \
+                  "or '{length} hours'".format(measurement, length=length)
+        await context.send(msg)
 
     @commands.command(aliases=['instructions'])
     async def intro(self, context: commands.Context):
