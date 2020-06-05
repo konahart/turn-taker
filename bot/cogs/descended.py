@@ -1,4 +1,3 @@
-import copy
 import json
 import discord
 from discord.ext import commands
@@ -22,17 +21,36 @@ class DescendedGameData(object):
 
 
 class DescendedGame(TurnGame):
-    def __init__(self, game):
+    def __init__(self, game_data):
         super().__init__()
-        self.current_prompt = 0
-        self.last_message = None
+        self._game_data = game_data
+        self.used_prompts = set()
+        self.current_prompt_index = 0
+        self.previous_message = None
 
-    def copy_game_data(self, game_data):
-        self.title = game_data.title
-        self.intro = copy.deepcopy(game_data.intro)
-        self.instructions = copy.deepcopy(game_data.instructions)
-        self.final_question = game_data.final_question
-        self.prompts = copy.deepcopy(game_data.prompts)
+    @property
+    def title(self):
+        return self._game_data.title
+
+    @property
+    def intro(self):
+        return self._game_data.intro
+
+    @property
+    def instructions(self):
+        return self._game_data.instructions
+
+    @property
+    def final_question(self):
+        return self._game_data.final_question
+
+    @property
+    def prompts(self):
+        return self._game_data.prompts
+
+    @property
+    def current_prompt(self):
+        return self.prompts[self.current_prompt_index]
 
     def get_current_prompt(self):
         return self.current_prompt
