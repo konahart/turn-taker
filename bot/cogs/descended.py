@@ -1,4 +1,5 @@
 import json
+import random
 import discord
 from discord.ext import commands
 from collections import defaultdict
@@ -41,7 +42,7 @@ class DescendedGame(TurnGame):
         return self._game_data.instructions
 
     @property
-    def final_question(self):
+    def final_prompt(self):
         return self._game_data.final_question
 
     @property
@@ -56,9 +57,18 @@ class DescendedGame(TurnGame):
         return self.current_prompt
 
     def advance_prompt(self):
-        c = self.current_prompt
-        self.current_prompt += 1
-        return c
+        if len(self.used_prompts) > len(self.prompts):
+            # Ran out of prompts, end the game
+            self.final_question()
+            return
+        index = random.randrange(0, len(self.prompts) - 1)
+        while index in self.used_prompts:
+            index = random.randrange(0, len(self.prompts) - 1)
+        self.current_prompt_index = index
+        self.used_prompts.add(index)
+
+    def final_question(self):
+        pass
 
 
 class DescendedFromTheQueenCog(TurnGameCog):
