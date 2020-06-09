@@ -96,6 +96,17 @@ class DescendedGame(TurnGame):
         self.maximum_minutes = int(maximum_minutes -
                                    (2 * len(self._player_queue)))
 
+    def get_end_conditions(self):
+        end_conditions = []
+        if self.maximum_prompts:
+            end_conditions.append("{} prompts".format(self.maximum_prompts))
+        if self.maximum_minutes:
+            end_conditions.append("{} minutes".format(self.maximum_minutes))
+        if not end_conditions:
+            end_conditions.append("{} prompts (default)"
+                                  .format(DEFAULT_GAME_LENGTH))
+        return end_conditions
+
     def get_current_prompt(self):
         return self.current_prompt
 
@@ -138,10 +149,15 @@ class DescendedFromTheQueenCog(TurnGameCog):
     @commands.command(aliases=["duration"],
                       help='set length of game in either prompts, hours, or '
                            'minutes')
-    async def length(self, context: commands.Context, length: float,
+    async def length(self, context: commands.Context, length: Optional[float],
                      measurement: Optional[str]):
         game = self._get_game(context)
         msg_template = "Game length set to {} {}"
+        if not length:
+            end_conditions = game.get_end_conditions()
+            msg = msg_template.format(", or ".join(end_conditions), "")
+            await context.send(msg)
+            return
         if not measurement:
             msg = "Measurement required " \
                   "-- try '{length} prompts', '{length} minutes', " \
