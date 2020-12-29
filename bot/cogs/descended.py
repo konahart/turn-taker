@@ -7,6 +7,7 @@ from collections import defaultdict
 from functools import partial
 from typing import Optional
 from .turn_game import TurnGame, TurnGameCog
+from .load_gsheet import load_sheet
 
 
 ZERO_WIDTH_SPACE = '\u200b'  # for sending 'empty' messages
@@ -18,14 +19,17 @@ DEFAULT_GAME_LENGTH = 20  # prompts
 
 
 class DescendedGameData(object):
-    def __init__(self, game_file):
-        with open(game_file, 'r') as f:
-            data = json.load(f)
-        self.title = data["title"]
-        self.intro = data["intro"]
-        self.instructions = data["instructions"]
-        self.final_question = data["final"]
-        self.prompts = data["prompts"]
+    def __init__(self, game_file=None, game_url=None):
+        if game_file:
+            with open(game_file, 'r') as f:
+                data = json.load(f)
+        elif game_url:
+            data = load_sheet(game_url)
+        self.title = data["title"] or ""
+        self.intro = data["intro"] or ""
+        self.instructions = data["instructions"] or []
+        self.final_question = data["final"] or ""
+        self.prompts = data["prompts"] or []
 
 
 class DescendedGame(TurnGame):
@@ -188,6 +192,15 @@ class DescendedFromTheQueenCog(TurnGameCog):
         await context.send(content=ZERO_WIDTH_SPACE, embed=embed)
         msg = 'Whoever wishes to may start, by using `{}start`' \
               .format(self.bot.command_prefix)
+        await context.send(msg)
+
+    @commands.command(help='load game from a Google sheet')
+    async def load(self, context: commands.Context, url):
+        if not isinstance(url, str):
+            msg = "Must provide url of Google Sheet to load from"
+        self._contexts[context.channel.id] = DescendedGame(url)
+        game = self._get_game
+        msg = "Game {game_data.title} loaded from url"
         await context.send(msg)
 
     @commands.command(help='start the game')
