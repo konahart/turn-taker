@@ -25,6 +25,8 @@ class DescendedGameData(object):
                 data = json.load(f)
         elif game_url:
             data = load_sheet(game_url)
+        else:
+            data = {}
         self.title = data.get("title", "")
         self.intro = data.get("intro", "")
         self.instructions = data.get("instructions", [])
@@ -134,7 +136,7 @@ class DescendedGame(TurnGame):
 class DescendedFromTheQueenCog(TurnGameCog):
     """ Cog =  collection of commands, listeners, and some state """
 
-    def __init__(self, bot, game_file):
+    def __init__(self, bot, game_file=None):
         super().__init__(bot)
         self.game_data = DescendedGameData(game_file)
         self._contexts = defaultdict(partial(DescendedGame, self.game_data))
