@@ -16,6 +16,9 @@ def load_sheet(url):
         else:
             try:
                 deck_number = int(row['deck'])
+                if deck_number == 0:
+                    # skip instructions
+                    continue
                 if deck_number not in decks:
                     decks[deck_number] = []
                 text = row['body']
