@@ -24,7 +24,9 @@ class DescendedGameData(object):
             with open(game_file, 'r') as f:
                 data = json.load(f)
         elif game_url:
-            data = load_sheet(game_url)
+            data, error = load_sheet(game_url)
+            if error:
+                raise Exception(error)
         else:
             data = {}
         self.title = data.get("title", "")
@@ -200,10 +202,14 @@ class DescendedFromTheQueenCog(TurnGameCog):
     async def load(self, context: commands.Context, url):
         if not isinstance(url, str):
             msg = "Must provide url of Google Sheet to load from"
-        new_game_data = DescendedGameData(game_url=url)
-        self._contexts[context.channel.id] = DescendedGame(new_game_data)
-        game = self._get_game(context)
-        msg = f"'{game.title}' loaded from url"
+        try:
+            new_game_data = DescendedGameData(game_url=url)
+            self._contexts[context.channel.id] = DescendedGame(new_game_data)
+            game = self._get_game(context)
+            msg = f"'{game.title}' loaded from url"
+        except Exception as e:
+            print("Exception! in Descended", e)
+            msg = "Error: Unable to load from url"
         await context.send(msg)
 
     @commands.command(help='start the game')
