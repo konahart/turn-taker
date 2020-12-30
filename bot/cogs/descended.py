@@ -25,11 +25,11 @@ class DescendedGameData(object):
                 data = json.load(f)
         elif game_url:
             data = load_sheet(game_url)
-        self.title = data["title"] or ""
-        self.intro = data["intro"] or ""
-        self.instructions = data["instructions"] or []
-        self.final_question = data["final"] or ""
-        self.prompts = data["prompts"] or []
+        self.title = data.get("title", "")
+        self.intro = data.get("intro", "")
+        self.instructions = data.get("instructions", [])
+        self.final_question = data.get("final", "")
+        self.prompts = data.get("prompts", [])
 
 
 class DescendedGame(TurnGame):
