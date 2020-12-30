@@ -11,7 +11,7 @@ from .turn_game import TurnGame, TurnGameCog
 
 ZERO_WIDTH_SPACE = '\u200b'  # for sending 'empty' messages
 PROMPT_MEASURES = {"prompt", "prompts", "card", "cards", "question",
-                  "questions"}
+                   "questions"}
 HOUR_MEAURES = {"hour", "hours", "h"}
 MINUTE_MEASURES = {"minute", "minutes", "min", "m"}
 DEFAULT_GAME_LENGTH = 20  # prompts
@@ -129,6 +129,7 @@ class DescendedGame(TurnGame):
 
 class DescendedFromTheQueenCog(TurnGameCog):
     """ Cog =  collection of commands, listeners, and some state """
+
     def __init__(self, bot, game_file):
         super().__init__(bot)
         self.game_data = DescendedGameData(game_file)
@@ -218,7 +219,8 @@ class DescendedFromTheQueenCog(TurnGameCog):
                       help='remove the previous prompt from the game')
     async def xcard(self, context: commands.Context):
         game = self._get_game(context)
-        xCardMessage = "[this prompt was X-Carded :heart: ]"
+        content = game.last_message.content
+        xCardMessage = f"[this prompt was X-Carded :heart: ] ||{content}||"
         await game.last_message.edit(content=xCardMessage)
         # replace with new prompt
         game.advance_prompt()
