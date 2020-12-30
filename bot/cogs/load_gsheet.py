@@ -3,7 +3,7 @@ import gspread
 
 def load_sheet(url):
     clean_data = {}
-    client = gspread.service_account(filename='creds.json')
+    client = gspread.service_account(filename='bot/creds.json')
     sheet = client.open_by_url(url)
     worksheet = sheet.get_worksheet(0)
     data = worksheet.get_all_records()
