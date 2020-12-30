@@ -198,9 +198,10 @@ class DescendedFromTheQueenCog(TurnGameCog):
     async def load(self, context: commands.Context, url):
         if not isinstance(url, str):
             msg = "Must provide url of Google Sheet to load from"
-        self._contexts[context.channel.id] = DescendedGame(url)
-        game = self._get_game
-        msg = "Game {game_data.title} loaded from url"
+        new_game_data = DescendedGameData(game_url=url)
+        self._contexts[context.channel.id] = DescendedGame(new_game_data)
+        game = self._get_game(context)
+        msg = f"'{game.title}' loaded from url"
         await context.send(msg)
 
     @commands.command(help='start the game')
